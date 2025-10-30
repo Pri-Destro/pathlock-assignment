@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { Task, CreateTaskRequest, UpdateTaskRequest } from '../types/task';
 
-const url = import.meta.env.API_BASE_URL;
+const url = import.meta.env.VITE_API_BASE_URL;
 
 export const getAllTasks = async () => {
   const response = await axios.get<Task[]>(`${url}/tasks`);

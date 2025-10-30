@@ -91,47 +91,39 @@ function App() {
         <Hero/>
 
         <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-[1fr,380px] gap-8">
-            <div className="space-y-6">
-              <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-slate-800 p-6 sm:p-8 space-y-6">
-                {error && (
-                  <div className="flex items-center gap-3 p-4 bg-rose-900/20 border border-rose-800/50 rounded-lg text-rose-400">
-                    <AlertCircle className="w-5 h-5 shrink-0" />
-                    <p className="text-sm">{error}</p>
-                  </div>
-                )}
-
-                <TaskInput onAdd={handleAddTask} isLoading={isLoading} />
-
-                <TaskFilter
-                  currentFilter={filter}
-                  onFilterChange={setFilter}
-                  taskCounts={taskCounts}
-                />
-
-                <div className="pt-4">
-                  <TaskList
-                    tasks={filteredTasks}
-                    onToggleComplete={handleToggleComplete}
-                    onDelete={handleDeleteTask}
-                  />
-                </div>
-              </div>
+          <div className="space-y-6">
+            <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-slate-800 p-8 flex items-center justify-center">
+              <Progress
+                completed={taskCounts.completed}
+                total={taskCounts.all}
+              />
             </div>
 
-            <div className="lg:sticky lg:top-8 lg:self-start">
-              <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-slate-800 p-8 flex items-center justify-center">
-                <Progress
-                  completed={taskCounts.completed}
-                  total={taskCounts.all}
+            <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-slate-800 p-6 sm:p-8 space-y-6">
+              {error && (
+                <div className="flex items-center gap-3 p-4 bg-rose-900/20 border border-rose-800/50 rounded-lg text-rose-400">
+                  <AlertCircle className="w-5 h-5 shrink-0" />
+                  <p className="text-sm">{error}</p>
+                </div>
+              )}
+
+              <TaskInput onAdd={handleAddTask} isLoading={isLoading} />
+
+              <TaskFilter
+                currentFilter={filter}
+                onFilterChange={setFilter}
+                taskCounts={taskCounts}
+              />
+
+              <div className="pt-4">
+                <TaskList
+                  tasks={filteredTasks}
+                  onToggleComplete={handleToggleComplete}
+                  onDelete={handleDeleteTask}
                 />
               </div>
             </div>
           </div>
-        </div>
-
-        <div className="mt-8 text-center text-sm text-slate-500">
-          <p>Backend API: http://localhost:5000</p>
         </div>
       </div>
     </div>
