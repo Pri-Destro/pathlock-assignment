@@ -34,8 +34,10 @@ builder.Services.AddCors(options =>
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var jwtSettings = jwtSection.Get<JwtSettings>()!;
 
+DotNetEnv.Env.Load();
 var keyString = Environment.GetEnvironmentVariable("JWT_KEY") ?? jwtSettings.Key;
 var key = Encoding.UTF8.GetBytes(keyString);
+
 
 
 builder.Services.AddAuthentication(options =>
