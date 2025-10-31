@@ -41,7 +41,7 @@ export const api = {
         request(`/api/projects/${id}`, 'GET', undefined, token),
 
     createProject: (
-        data: { title: string; description?: string },
+        data: { title: string; description?: string; createdAt : Date },
         token: string
     ) => request('/api/projects', 'POST', data, token),
 
@@ -51,7 +51,7 @@ export const api = {
     /* ========== TASKS ========== */
 
     getTask: (projectId: string, token: string) =>
-        request(`/api/projects/${projectId}/tasks`, 'GET', token),
+        request(`/api/projects/${projectId}/tasks`, 'GET', undefined, token),
 
     addTask: (projectId: string, data: any, token: string) =>
         request(`/api/projects/${projectId}/tasks`, 'POST', data, token),

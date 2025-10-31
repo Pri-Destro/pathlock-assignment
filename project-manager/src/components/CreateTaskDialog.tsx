@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 import { taskSchema, type TaskInput } from '../lib/schemas';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../services/api';
+import { useToast } from './ToastProvider';
 
 interface CreateTaskDialogProps {
   open: boolean;
@@ -19,6 +20,7 @@ export default function CreateTaskDialog({ open, onClose, projectId, onTaskCreat
   const [errors, setErrors] = useState<Partial<TaskInput>>({});
   const [loading, setLoading] = useState(false);
   const {token } = useAuth();
+  const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,7 +62,7 @@ export default function CreateTaskDialog({ open, onClose, projectId, onTaskCreat
       onClose();
     } catch (error) {
       console.error('Error creating task:', error);
-      alert('Failed to create task');
+      showToast('Failed to create task', 'error');
     } finally {
       setLoading(false);
     }

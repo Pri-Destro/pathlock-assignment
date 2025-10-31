@@ -17,7 +17,7 @@ export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [project, setProject] = useState<Project | null>(null);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks, setTasks] = useState<Task[] | []>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateTaskDialog, setShowCreateTaskDialog] = useState(false);
   const [showSmartScheduleDialog, setShowSmartScheduleDialog] = useState(false);
@@ -69,8 +69,6 @@ export default function ProjectDetail() {
   };
 
   const handleDeleteTask = async (taskId: string) => {
-
-    if (!confirm('Are you sure you want to delete this task?')) return;
 
     try {
 
@@ -132,7 +130,7 @@ export default function ProjectDetail() {
             <p className="text-slate-400">{project.description}</p>
           )}
           <div className="mt-4 flex items-center space-x-6 text-sm text-slate-500">
-            <span>Created {format(new Date(project.created_at), 'MMM d, yyyy')}</span>
+            <span>Created {format(new Date(project.createdAt), 'MMM d, yyyy')}</span>
             <span>{completedTasks} / {tasks.length} tasks completed</span>
           </div>
         </div>

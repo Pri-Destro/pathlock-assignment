@@ -15,52 +15,52 @@ export interface Database {
           user_id: string;
           title: string;
           description: string | null;
-          created_at: string;
+          createdAt: string;
         };
         Insert: {
           id?: string;
           user_id: string;
           title: string;
           description?: string | null;
-          created_at?: string;
+          createdAt?: string;
         };
         Update: {
           id?: string;
           user_id?: string;
           title?: string;
           description?: string | null;
-          created_at?: string;
+          createdAt?: string;
         };
       };
       tasks: {
         Row: {
           id: string;
-          project_id: string;
+          projectId: string;
           title: string;
           description: string | null;
           due_date: string | null;
           completed: boolean;
-          created_at: string;
+          createdAt: string;
           updated_at: string;
         };
         Insert: {
           id?: string;
-          project_id: string;
+          projectId: string;
           title: string;
           description?: string | null;
           due_date?: string | null;
           completed?: boolean;
-          created_at?: string;
+          createdAt?: string;
           updated_at?: string;
         };
         Update: {
           id?: string;
-          project_id?: string;
+          projectId?: string;
           title?: string;
           description?: string | null;
           due_date?: string | null;
           completed?: boolean;
-          created_at?: string;
+          createdAt?: string;
           updated_at?: string;
         };
       };

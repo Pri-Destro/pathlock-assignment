@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { projectSchema, type ProjectInput } from '../lib/schemas';
 import { api } from '../services/api';
+import { useToast } from './ToastProvider';
 
 
 interface CreateProjectDialogProps {
@@ -15,15 +16,20 @@ interface CreateProjectDialogProps {
 export default function CreateProjectDialog({ open, onClose, onProjectCreated }: CreateProjectDialogProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [createdAt, setCreatedAt] = useState(new Date());
   const [errors, setErrors] = useState<Partial<ProjectInput>>({});
   const [loading, setLoading] = useState(false);
   const { token } = useAuth();
+  const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
-
-    const result = projectSchema.safeParse({ title, description: description || null });
+    setCreatedAt(new Date ())
+    const result = projectSchema.safeParse({
+       title,
+       description: description || null, 
+       createdAt : createdAt.toISOString()  });
 
     if (!result.success) {
         const fieldErrors: Partial<ProjectInput> = {};
@@ -46,7 +52,7 @@ export default function CreateProjectDialog({ open, onClose, onProjectCreated }:
       if (!token) throw new Error('Not authenticated');
 
       await api.createProject(
-      { title: result.data.title, description: result.data.description },
+      { title: result.data.title, description: result.data.description, createdAt: new Date (result.data.createdAt) },
       token
       );
 
@@ -56,7 +62,7 @@ export default function CreateProjectDialog({ open, onClose, onProjectCreated }:
       onClose();
     } catch (error) {
       console.error('Error creating project:', error);
-      alert('Failed to create project');
+      showToast('Failed to create project', 'error');
     } finally {
       setLoading(false);
     }

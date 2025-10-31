@@ -21,7 +21,9 @@ export const projectSchema = z.object({
     .max(100, 'Title must not exceed 100 characters'),
   description: z.string()
     .max(500, 'Description must not exceed 500 characters')
-    .optional()
+    .optional(),
+  createdAt: z.string()
+  
 });
 
 export const taskSchema = z.object({

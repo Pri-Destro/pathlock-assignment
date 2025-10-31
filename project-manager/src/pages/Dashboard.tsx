@@ -5,6 +5,7 @@ import { api } from '../services/api';
 import { type Database } from '../lib/database.types';
 import { Plus, LogOut, FolderOpen, Trash2 } from 'lucide-react';
 import CreateProjectDialog from '../components/CreateProjectDialog';
+import { useToast } from '../components/ToastProvider';
 import { format } from 'date-fns';
 
 type Project = Database['public']['Tables']['projects']['Row'];
@@ -12,6 +13,7 @@ type Project = Database['public']['Tables']['projects']['Row'];
 export default function Dashboard() {
   const { user, signOut } = useAuth();
   const {token} = useAuth();
+  const { showToast } = useToast();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -25,6 +27,7 @@ export default function Dashboard() {
       
       if(!token) throw new Error("Not Authenticated")
       const data  = await api.getProjects(token)
+      console.log(data)
       setProjects(data || []);
     } catch (error) {
       console.error('Error loading projects:', error);
@@ -45,7 +48,7 @@ export default function Dashboard() {
       setProjects(projects.filter(p => p.id !== projectId));
     } catch (error) {
       console.error('Error deleting project:', error);
-      alert('Failed to delete project');
+      showToast('Failed to delete project', 'error');
     }
   };
 
@@ -135,7 +138,7 @@ export default function Dashboard() {
                   </p>
                 )}
                 <div className="text-xs text-slate-500">
-                  Created {format(new Date(project.created_at), 'MMM d, yyyy')}
+                  Created {format(new Date(project.createdAt), 'MMM d, yyyy')}
                 </div>
               </div>
             ))}
