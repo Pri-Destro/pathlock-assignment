@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { projectSchema, type ProjectInput } from '../lib/schemas';
 import { api } from '../services/api';
 
+
 interface CreateProjectDialogProps {
   open: boolean;
   onClose: () => void;
@@ -16,6 +17,7 @@ export default function CreateProjectDialog({ open, onClose, onProjectCreated }:
   const [description, setDescription] = useState('');
   const [errors, setErrors] = useState<Partial<ProjectInput>>({});
   const [loading, setLoading] = useState(false);
+  const { token } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,8 +39,10 @@ export default function CreateProjectDialog({ open, onClose, onProjectCreated }:
 
     setLoading(true);
 
-    const { token } = useAuth();
+
+
     try {
+
       if (!token) throw new Error('Not authenticated');
 
       await api.createProject(

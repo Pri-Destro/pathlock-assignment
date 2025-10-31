@@ -18,6 +18,7 @@ export default function CreateTaskDialog({ open, onClose, projectId, onTaskCreat
   const [dueDate, setDueDate] = useState('');
   const [errors, setErrors] = useState<Partial<TaskInput>>({});
   const [loading, setLoading] = useState(false);
+  const {token } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +44,7 @@ export default function CreateTaskDialog({ open, onClose, projectId, onTaskCreat
 
     setLoading(true);
     try {
-      const {token } = useAuth();
+      
       if(!token) throw new Error("Not Authenticated")
 
       await api.addTask(projectId,{
