@@ -16,7 +16,8 @@ async function request(
     headers,
     body: body ? JSON.stringify(body) : undefined,
   });
-
+  
+  if (res.status === 204) return null;
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || `Request failed (${res.status})`);
@@ -57,7 +58,7 @@ export const api = {
         request(`/api/projects/${projectId}/tasks`, 'POST', data, token),
 
     updateTask: (taskId: string, data: any, token: string) =>
-        request(`/api/tasks/${taskId}`, 'PUT', data, token),
+        request(`/api/tasks/${taskId}`, 'PUT', { ...data, id: taskId }, token),
 
     deleteTask: (taskId: string, token: string) =>
         request(`/api/tasks/${taskId}`, 'DELETE', undefined, token),

@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {type Database } from '../lib/database.types';
-import { ArrowLeft, Plus, Trash2, Calendar, Sparkles } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Calendar, Sparkles, SquarePen } from 'lucide-react';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { Check } from 'lucide-react';
 import CreateTaskDialog from '../components/CreateTaskDialog';
 import SmartScheduleDialog from '../components/SmartScheduleDialog';
+import EditTaskDialog from '../components/EditTaskDialog';
+import {useToast} from '../components/ToastProvider'
 import { format } from 'date-fns';
 import { api } from '../services/api';
 
@@ -21,6 +23,9 @@ export default function ProjectDetail() {
   const [loading, setLoading] = useState(true);
   const [showCreateTaskDialog, setShowCreateTaskDialog] = useState(false);
   const [showSmartScheduleDialog, setShowSmartScheduleDialog] = useState(false);
+  const [showEditTaskDialog, setShowEditTaskDialog] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const {showToast} = useToast()
   const {token} = useAuth()
 
   useEffect(() => {
@@ -37,7 +42,7 @@ export default function ProjectDetail() {
 
       const [projectData, tasksData] = await Promise.all([
         api.getProjectById(id, token),
-        api.getTask(id,token)
+        api.getTask(id, token)
       ]);
 
       if (!projectData) {
@@ -62,6 +67,9 @@ export default function ProjectDetail() {
       await api.updateTask(taskId, { completed }, token);
 
       setTasks(tasks.map(t => t.id === taskId ? { ...t, completed } : t));
+      if(completed) showToast("Task Completed!")
+
+      setShowEditTaskDialog(false)
 
     } catch (error) {
       console.error('Error updating task:', error);
@@ -69,31 +77,23 @@ export default function ProjectDetail() {
   };
 
   const handleDeleteTask = async (taskId: string) => {
-
     try {
-
-      if(!token ) throw new Error("Not Authenticated")
+      if(!token) throw new Error("Not Authenticated")
       
-      await api.deleteTask(taskId, token)
+      await api.deleteTask(taskId, token);
 
       setTasks(tasks.filter(t => t.id !== taskId));
+      showToast("Task Deleted!")
+      loadProjectAndTasks();
     } catch (error) {
       console.error('Error deleting task:', error);
     }
   };
 
-  // const handleEditTask = async(taskId : string) => {
-  //   try {
-
-  //     if(!token ) throw new Error("Not Authenticated")
-      
-  //     // await api.updateTask(taskId,token)
-
-  //     setTasks(tasks.filter(t => t.id !== taskId));
-  //   } catch (error) {
-  //     console.error('Error deleting task:', error);
-  //   }
-  // }
+  const handleEditClick = (task: Task) => {
+     setEditingTask(task);
+     setShowEditTaskDialog(true);
+   };
 
   if (loading) {
     return (
@@ -195,7 +195,7 @@ export default function ProjectDetail() {
                       {task.title}
                     </h3>
                     {task.description && (
-                      <p className="mt-1 text-sm text-slate-400">{task.description}</p>
+                      <p className={`mt-1 text-sm text-slate-400 ${task.completed ? 'line-through text-slate-500' : ''}`}>{task.description}</p>
                     )}
                     {task.due_date && (
                       <div className="mt-2 flex items-center space-x-2 text-xs text-slate-500">
@@ -205,6 +205,12 @@ export default function ProjectDetail() {
                     )}
                   </div>
 
+                  <button
+                    onClick={() => handleEditClick(task)}
+                    className="p-1.5 text-slate-500 hover:text-emerald-400 hover:bg-emerald-500/10 rounded transition-colors mr-2"
+                  >
+                  <SquarePen className="w-4 h-4"/>  
+                  </button>
                   <button
                     onClick={() => handleDeleteTask(task.id)}
                     className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
@@ -223,6 +229,16 @@ export default function ProjectDetail() {
         onClose={() => setShowCreateTaskDialog(false)}
         projectId={id!}
         onTaskCreated={loadProjectAndTasks}
+      />
+
+      <EditTaskDialog
+        open={showEditTaskDialog}
+        onClose={() => {
+          setShowEditTaskDialog(false);
+          setEditingTask(null);
+        }}
+        task={editingTask}
+        onTaskUpdated={loadProjectAndTasks}
       />
 
       <SmartScheduleDialog

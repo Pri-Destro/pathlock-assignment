@@ -34,10 +34,11 @@ public class TaskService : ITaskService
         var task = await _db.Tasks.Include(t => t.Project).FirstOrDefaultAsync(t => t.Id == dto.Id);
         if (task == null || task.Project!.UserId != userId) throw new KeyNotFoundException("Task not found or not owned by user.");
 
-        task.Title = dto.Title;
-        task.Description = dto.Description;
-        task.DueDate = dto.DueDate;
-        task.Completed = dto.Completed;
+        // Only update fields that are provided in the DTO
+        if (dto.Title != null) task.Title = dto.Title;
+        if (dto.Description != null) task.Description = dto.Description;
+        if (dto.DueDate.HasValue) task.DueDate = dto.DueDate;
+        if (dto.Completed.HasValue) task.Completed = dto.Completed.Value;
         task.UpdatedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
