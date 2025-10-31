@@ -1,6 +1,4 @@
-# Pathlock Assignment — Project & Task Manager
-
-This repository contains a **Project Management System** built with **.NET 8 (Backend)** and **React + TypeScript + TailwindCSS (Frontend)**.
+# Pathlock Assignment — Project Manager & Task Manager
 
 ## Live Deployments
 

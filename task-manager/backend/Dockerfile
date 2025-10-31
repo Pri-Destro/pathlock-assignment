@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy csproj and restore as distinct layers
-COPY *.csproj ./
+COPY backend.csproj ./
 RUN dotnet restore
 
 # Copy everything else and build
