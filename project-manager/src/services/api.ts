@@ -62,4 +62,7 @@ export const api = {
 
     deleteTask: (taskId: string, token: string) =>
         request(`/api/tasks/${taskId}`, 'DELETE', undefined, token),
+
+    scheduleProject: (projectId: string, payload: any, token: string) =>
+        request(`/api/v1/projects/${projectId}/schedule`, 'POST', payload, token),
     };

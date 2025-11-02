@@ -27,7 +27,6 @@ export default function Dashboard() {
       
       if(!token) throw new Error("Not Authenticated")
       const data  = await api.getProjects(token)
-      console.log(data)
       setProjects(data || []);
     } catch (error) {
       console.error('Error loading projects:', error);

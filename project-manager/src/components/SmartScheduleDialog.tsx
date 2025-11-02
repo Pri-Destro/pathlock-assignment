@@ -4,6 +4,8 @@ import { X, Calendar, Clock } from 'lucide-react';
 import { type Database } from '../lib/database.types';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { Check } from 'lucide-react';
+import { api } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 type Task = Database['public']['Tables']['tasks']['Row'];
 
@@ -19,12 +21,14 @@ interface SmartScheduleDialogProps {
   onClose: () => void;
   projectId: string;
   tasks: Task[];
+  onScheduleComplete?: (recommendedOrder: Array<{ taskId: string; title: string }>) => void;
 }
 
-export default function SmartScheduleDialog({ open, onClose, projectId, tasks }: SmartScheduleDialogProps) {
+export default function SmartScheduleDialog({ open, onClose, projectId, tasks, onScheduleComplete }: SmartScheduleDialogProps) {
   const [scheduleData, setScheduleData] = useState<Record<string, TaskScheduleData>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const {token} = useAuth()
 
   const updateTaskSchedule = (taskId: string, field: keyof TaskScheduleData, value: string | number | string[]) => {
     setScheduleData(prev => ({
@@ -48,9 +52,16 @@ export default function SmartScheduleDialog({ open, onClose, projectId, tasks }:
     updateTaskSchedule(taskId, 'dependencies', newDeps);
   };
 
+  // Helper function to get task title by ID
+  const getTaskTitle = (taskId: string) => {
+    return tasks.find(t => t.id === taskId)?.title || '';
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if(!token) throw new Error("Not Authenticated")
 
     const tasksToSchedule = tasks.filter(task => scheduleData[task.id]);
 
@@ -74,29 +85,26 @@ export default function SmartScheduleDialog({ open, onClose, projectId, tasks }:
     setLoading(true);
 
     try {
-      const payload = tasksToSchedule.map(task => {
-        const data = scheduleData[task.id];
-        return {
-          title: task.title,
-          estimatedHours: data.estimatedHours,
-          dueDate: data.dueDate,
-          dependencies: data.dependencies,
-        };
-      });
+      const payload = {
+        tasks: tasksToSchedule.map(task => {
+          const data = scheduleData[task.id];
+          // Convert date to ISO 8601 format with time
+          const dueDateTime = data.dueDate ? new Date(data.dueDate + 'T00:00:00Z').toISOString() : '';
+          return {
+            taskId: task.id, // Changed from id to taskId to match backend expectation
+            title: task.title,
+            estimatedHours: data.estimatedHours,
+            dueDate: dueDateTime,
+            dependencies: data.dependencies.map(depId => getTaskTitle(depId)),
+          };
+        })
+      };
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/api/v1/projects/${projectId}/schedule`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to schedule tasks');
+      const response = await api.scheduleProject(projectId, payload, token);
+      
+      // Pass the recommended order back to parent component
+      if (response.recommendedOrder && onScheduleComplete) {
+        onScheduleComplete(response.recommendedOrder);
       }
 
       setScheduleData({});
@@ -113,12 +121,14 @@ export default function SmartScheduleDialog({ open, onClose, projectId, tasks }:
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
         <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-900 border border-slate-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-          <div className="flex justify-between items-center p-6 border-b border-slate-800">
+          <div className="flex justify-between items-center p-6 border-b border-slate-800 z-20">
             <div>
               <Dialog.Title className="text-xl font-semibold text-white">
                 Smart Schedule
               </Dialog.Title>
-              <p className="text-sm text-slate-400 mt-1">Configure scheduling parameters for your tasks</p>
+              <Dialog.Description className="text-sm text-slate-400 mt-1">
+                Configure scheduling parameters for your tasks
+              </Dialog.Description>
             </div>
             <Dialog.Close className="text-slate-400 hover:text-white transition-colors">
               <X className="w-5 h-5" />

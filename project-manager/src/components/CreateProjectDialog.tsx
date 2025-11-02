@@ -77,6 +77,8 @@ export default function CreateProjectDialog({ open, onClose, onProjectCreated }:
             <Dialog.Title className="text-xl font-semibold text-white">
               Create New Project
             </Dialog.Title>
+            <Dialog.Description className="text-sm text-slate-400 mt-1">
+            </Dialog.Description>
             <Dialog.Close className="text-slate-400 hover:text-white transition-colors">
               <X className="w-5 h-5" />
             </Dialog.Close>

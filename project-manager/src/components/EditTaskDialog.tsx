@@ -37,7 +37,6 @@ export default function EditTaskDialog({ open, onClose, task, onTaskUpdated }: E
     e.preventDefault();
     console.log(e)
     if (!task) return;
-    console.log(task,"it is task to be updated")
     setLoading(true);
     try {
       if (!token) throw new Error('Not authenticated');
@@ -48,7 +47,6 @@ export default function EditTaskDialog({ open, onClose, task, onTaskUpdated }: E
         due_date: dueDate === '' ? null : dueDate,
       };
 
-      console.log(payload, " payload to send")
       await api.updateTask(task.id, payload, token);
       onTaskUpdated();
       showToast("Task Updated!!")
@@ -67,7 +65,11 @@ export default function EditTaskDialog({ open, onClose, task, onTaskUpdated }: E
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
         <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-900 border border-slate-800 rounded-lg shadow-xl w-full max-w-md p-6">
           <div className="flex justify-between items-center mb-6">
+            <div>
             <Dialog.Title className="text-xl font-semibold text-white">Edit Task</Dialog.Title>
+            <Dialog.Description className="text-sm text-slate-400 mt-1"> Edit your tasks </Dialog.Description>
+            </div>
+
             <Dialog.Close className="text-slate-400 hover:text-white transition-colors">
               <X className="w-5 h-5" />
             </Dialog.Close>

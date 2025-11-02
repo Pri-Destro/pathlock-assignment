@@ -63,8 +63,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ email, name, password }),
       });
 
-      console.log("signUp",res)
-
       if (!res.ok) {
         const { error } = await res.json();
         return { error: error || 'Registration failed' };
