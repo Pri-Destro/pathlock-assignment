@@ -94,6 +94,11 @@ app.MapDelete("/api/tasks/{id}", (Guid id, TaskStore store) =>
 })
 .WithName("DeleteTask");
 
+app.MapGet("/api/health", () =>
+{
+    return Results.Ok(new { status = "Backend is running"});
+})
+.WithName("HealthCheck");
 
 app.Run();
 

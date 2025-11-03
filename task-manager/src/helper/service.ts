@@ -21,3 +21,8 @@ export const updateTask = async (id: string, request: UpdateTaskRequest) => {
 export const deleteTask = async (id: string) => {
   await axios.delete(`${url}/tasks/${id}`);
 };
+
+export const checkBackend = async() => {
+  const response = await axios.get(`${url}/health`)
+  return response.status;
+}

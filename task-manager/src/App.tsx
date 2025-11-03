@@ -7,16 +7,44 @@ import { Progress } from './components/Progress'
 import { getAllTasks, createTask, updateTask, deleteTask } from './helper/service';
 import { Hero } from "./components/Hero"
 import type { Task, FilterType } from './types/task';
+import { checkBackend } from './helper/service';
 
 function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filter, setFilter] = useState<FilterType>('all');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isBackendReady, setIsBackendReady] = useState(false);
+
+    useEffect(() => {
+    const init = async () => {
+      try {
+        await checkBackend();
+        setIsBackendReady(true);
+        await loadTasks();
+      } catch (err) {
+        setError('Connecting to backend...');
+        const interval = setInterval(async () => {
+          try {
+            await checkBackend();
+            clearInterval(interval);
+            setIsBackendReady(true);
+            setError(null);
+            await loadTasks();
+          } catch {
+            setError('Connecting to backend...');
+          }
+        }, 3000);
+      }
+    };
+    init();
+  }, []);
+
 
   useEffect(() => {
     loadTasks();
   }, []);
+
 
   const loadTasks = async () => {
     try {
@@ -83,6 +111,14 @@ function App() {
     active: tasks.filter((t) => !t.isCompleted).length,
     completed: tasks.filter((t) => t.isCompleted).length,
   };
+
+  if (!isBackendReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-200 text-lg">
+        Connecting to backend...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-950">
